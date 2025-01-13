@@ -21,7 +21,7 @@ export default function DeleteButton({
   return (
     <button
       onClick={handleDelete}
-      className="absolute top-0 right-0 -mt-2 -mr-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600 transition-colors"
+      className="absolute top-1/2 right-0 -translate-y-1/2 -mr-2 bg-gray-100 hover:bg-red-100 text-gray-500 hover:text-red-500 rounded-full w-5 h-5 flex items-center justify-center text-xs transition-colors"
       title="Delete score"
     >
       ×
