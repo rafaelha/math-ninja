@@ -14,7 +14,7 @@ function formatDate(dateStr: string) {
 
 export default async function ScoresPage() {
   const allScores = await getAllScores();
-  const allDates = await getAllDates();
+  const allDates = (await getAllDates()).sort((a, b) => b.localeCompare(a)); // Sort dates in descending order
 
   return (
     <div className="min-h-screen bg-gray-100 py-12 px-4">
@@ -37,9 +37,6 @@ export default async function ScoresPage() {
                   <th className="sticky left-0 z-10 bg-gray-50 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Student Name
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Current Belt
-                  </th>
                   {allDates.map((date) => (
                     <th
                       key={date}
@@ -53,7 +50,6 @@ export default async function ScoresPage() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {students.map((student) => {
                   const studentScores = allScores[student.name] || [];
-                  const latestScore = studentScores[studentScores.length - 1];
                   const scoresByDate = Object.fromEntries(
                     studentScores.map((entry) => [entry.date, entry])
                   );
@@ -64,15 +60,6 @@ export default async function ScoresPage() {
                         <div className="text-sm font-medium text-gray-900">
                           {student.name}
                         </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {latestScore && (
-                          <span
-                            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-${latestScore.belt} belt-indicator`}
-                          >
-                            {latestScore.belt}
-                          </span>
-                        )}
                       </td>
                       {allDates.map((date) => {
                         const entry = scoresByDate[date];
