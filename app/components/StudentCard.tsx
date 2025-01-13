@@ -58,7 +58,9 @@ export default function StudentCard({ student }: { student: Student }) {
         </div>
       ) : (
         <div className="text-center">
-          <div className={`h-4 w-full rounded-full bg-${belt} mb-2`} />
+          <div
+            className={`h-4 w-full rounded-full bg-${belt} belt-indicator mb-2`}
+          />
           <p className="text-lg font-semibold capitalize">{belt} Belt!</p>
         </div>
       )}

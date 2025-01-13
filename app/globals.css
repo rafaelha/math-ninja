@@ -14,12 +14,22 @@
   --black-belt: #000000;
 }
 
-.bg-white { background-color: var(--white-belt); }
-.bg-yellow { background-color: var(--yellow-belt); }
-.bg-orange { background-color: var(--orange-belt); }
-.bg-green { background-color: var(--green-belt); }
-.bg-blue { background-color: var(--blue-belt); }
-.bg-purple { background-color: var(--purple-belt); }
-.bg-red { background-color: var(--red-belt); }
-.bg-brown { background-color: var(--brown-belt); }
-.bg-black { background-color: var(--black-belt); }
+/* Base belt styles with outline */
+[class*="bg-"].belt-indicator {
+  border: 1px solid black;
+  color: white;
+}
+
+/* Individual belt styles */
+.bg-white.belt-indicator { 
+  background-color: var(--white-belt);
+  color: black !important;
+}
+.bg-yellow.belt-indicator { background-color: var(--yellow-belt); }
+.bg-orange.belt-indicator { background-color: var(--orange-belt); }
+.bg-green.belt-indicator { background-color: var(--green-belt); }
+.bg-blue.belt-indicator { background-color: var(--blue-belt); }
+.bg-purple.belt-indicator { background-color: var(--purple-belt); }
+.bg-red.belt-indicator { background-color: var(--red-belt); }
+.bg-brown.belt-indicator { background-color: var(--brown-belt); }
+.bg-black.belt-indicator { background-color: var(--black-belt); }
