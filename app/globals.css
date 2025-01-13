@@ -3,19 +3,23 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --white-belt: #ffffff;
+  --yellow-belt: #ffd700;
+  --orange-belt: #ffa500;
+  --green-belt: #228b22;
+  --blue-belt: #0000ff;
+  --purple-belt: #800080;
+  --red-belt: #ff0000;
+  --brown-belt: #8b4513;
+  --black-belt: #000000;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-}
+.bg-white { background-color: var(--white-belt); }
+.bg-yellow { background-color: var(--yellow-belt); }
+.bg-orange { background-color: var(--orange-belt); }
+.bg-green { background-color: var(--green-belt); }
+.bg-blue { background-color: var(--blue-belt); }
+.bg-purple { background-color: var(--purple-belt); }
+.bg-red { background-color: var(--red-belt); }
+.bg-brown { background-color: var(--brown-belt); }
+.bg-black { background-color: var(--black-belt); }
