@@ -5,6 +5,13 @@ import Link from "next/link";
 
 export const revalidate = 0; // Disable cache for this page
 
+// Helper function to format dates consistently
+function formatDate(dateStr: string) {
+  // Create date in UTC
+  const date = new Date(dateStr + "T00:00:00Z");
+  return date.toLocaleDateString();
+}
+
 export default async function ScoresPage() {
   const allScores = await getAllScores();
   const allDates = await getAllDates();
@@ -38,7 +45,7 @@ export default async function ScoresPage() {
                       key={date}
                       className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap"
                     >
-                      {new Date(date).toLocaleDateString()}
+                      {formatDate(date)}
                     </th>
                   ))}
                 </tr>

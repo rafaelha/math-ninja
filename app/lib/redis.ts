@@ -34,6 +34,7 @@ export async function saveScore(
   score: number,
   belt: string
 ) {
+  // Get today's date in UTC
   const today = new Date().toISOString().split("T")[0];
   const allData =
     (await redis.get<AllScoresData>(SCORES_KEY)) || getEmptyData();

@@ -1,5 +1,12 @@
 "use client";
 
+// Helper function to format dates consistently
+function formatDate(dateStr: string) {
+  // Create date in UTC
+  const date = new Date(dateStr + "T00:00:00Z");
+  return date.toLocaleDateString();
+}
+
 export default function DeleteButton({
   studentName,
   date,
@@ -11,7 +18,7 @@ export default function DeleteButton({
 }) {
   const handleDelete = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    const formattedDate = new Date(date).toLocaleDateString();
+    const formattedDate = formatDate(date);
     if (confirm(`Delete score for ${studentName} on ${formattedDate}?`)) {
       await onDelete();
       window.location.reload();
