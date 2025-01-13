@@ -16,13 +16,18 @@ export type ScoreEntry = {
   belt: string;
 };
 
-export async function saveDateToList(date: string) {
-  const existingDates = (await redis.get<string[]>("dates")) || [];
-  if (!existingDates.includes(date)) {
-    const newDates = [...existingDates, date].sort();
-    await redis.set("dates", newDates);
-  }
-}
+type AllScoresData = {
+  dates: string[];
+  scores: Record<string, ScoreEntry[]>;
+};
+
+const SCORES_KEY = "all_scores_data";
+
+// Initialize empty data structure
+const getEmptyData = (): AllScoresData => ({
+  dates: [],
+  scores: Object.fromEntries(students.map((s) => [s.name, []])),
+});
 
 export async function saveScore(
   studentName: string,
@@ -30,64 +35,69 @@ export async function saveScore(
   belt: string
 ) {
   const today = new Date().toISOString().split("T")[0];
-  const existingData = (await redis.get<ScoreEntry[]>(studentName)) || [];
+  const allData =
+    (await redis.get<AllScoresData>(SCORES_KEY)) || getEmptyData();
 
-  // Remove entry for today if it exists
-  const filteredData = existingData.filter((entry) => entry.date !== today);
+  // Update dates if needed
+  if (!allData.dates.includes(today)) {
+    allData.dates = [...allData.dates, today].sort();
+  }
 
-  // Add new entry
-  const newData = [...filteredData, { date: today, score, belt }];
+  // Update student scores
+  if (!allData.scores[studentName]) {
+    allData.scores[studentName] = [];
+  }
 
-  await redis.set(studentName, newData);
-  await saveDateToList(today);
+  allData.scores[studentName] = [
+    ...allData.scores[studentName].filter((entry) => entry.date !== today),
+    { date: today, score, belt },
+  ];
+
+  // Single Redis operation to save everything
+  await redis.set(SCORES_KEY, allData);
 }
 
 export async function getStudentScores(
   studentName: string
 ): Promise<ScoreEntry[]> {
-  return (await redis.get<ScoreEntry[]>(studentName)) || [];
+  const allData =
+    (await redis.get<AllScoresData>(SCORES_KEY)) || getEmptyData();
+  return allData.scores[studentName] || [];
 }
 
 export async function getAllScores(): Promise<Record<string, ScoreEntry[]>> {
-  const scores: Record<string, ScoreEntry[]> = {};
-  for (const student of students) {
-    scores[student.name] = await getStudentScores(student.name);
-  }
-  return scores;
+  const allData =
+    (await redis.get<AllScoresData>(SCORES_KEY)) || getEmptyData();
+  return allData.scores;
 }
 
 export async function getAllDates(): Promise<string[]> {
-  return (await redis.get<string[]>("dates")) || [];
+  const allData =
+    (await redis.get<AllScoresData>(SCORES_KEY)) || getEmptyData();
+  return allData.dates;
 }
 
 export async function deleteScore(studentName: string, date: string) {
-  const existingData = (await redis.get<ScoreEntry[]>(studentName)) || [];
-  const newData = existingData.filter((entry) => entry.date !== date);
+  const allData =
+    (await redis.get<AllScoresData>(SCORES_KEY)) || getEmptyData();
 
-  // First, update the student's scores
-  await redis.set(studentName, newData);
-
-  // Only proceed with date cleanup if we actually deleted something
-  if (existingData.length !== newData.length) {
-    // Get all scores in a single operation
-    const allScoresPromises = students.map((student) =>
-      student.name === studentName
-        ? Promise.resolve([]) // Skip the student we just updated
-        : redis.get<ScoreEntry[]>(student.name)
+  // Remove score from student's array
+  if (allData.scores[studentName]) {
+    allData.scores[studentName] = allData.scores[studentName].filter(
+      (entry) => entry.date !== date
     );
-
-    const allScores = await Promise.all(allScoresPromises);
-
-    // Check if any other student has an entry for this date
-    const dateStillInUse = allScores.some(
-      (scores) => scores && scores.some((entry) => entry.date === date)
-    );
-
-    // If no other student has an entry for this date, remove it from dates list
-    if (!dateStillInUse) {
-      const existingDates = (await redis.get<string[]>("dates")) || [];
-      const newDates = existingDates.filter((d) => d !== date);
-      await redis.set("dates", newDates);
-    }
   }
+
+  // Check if this date is still used by any student
+  const dateStillInUse = Object.values(allData.scores).some((scores) =>
+    scores.some((entry) => entry.date === date)
+  );
+
+  // If date is no longer used, remove it from dates array
+  if (!dateStillInUse) {
+    allData.dates = allData.dates.filter((d) => d !== date);
+  }
+
+  // Single Redis operation to save everything
+  await redis.set(SCORES_KEY, allData);
 }
