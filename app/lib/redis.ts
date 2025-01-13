@@ -4,7 +4,7 @@ import { students } from "../types";
 const getRedisConfig = () => {
   return {
     url: process.env.KV_REST_API_URL,
-    token: process.env.KV_REST_API_READ_ONLY_TOKEN,
+    token: process.env.KV_REST_API_TOKEN,
   };
 };
 
