@@ -1,6 +1,7 @@
 import { getAllScores, getAllDates, deleteScore } from "../lib/redis";
 import { students } from "../types";
 import DeleteButton from "../components/DeleteButton";
+import Link from "next/link";
 
 export const revalidate = 0; // Disable cache for this page
 
@@ -11,6 +12,12 @@ export default async function ScoresPage() {
   return (
     <div className="min-h-screen bg-gray-100 py-12 px-4">
       <div className="max-w-7xl mx-auto">
+        <Link
+          href="/"
+          className="inline-block mb-6 text-blue-600 hover:text-blue-800"
+        >
+          ← Back to Main Page
+        </Link>
         <h1 className="text-4xl font-bold text-gray-900 mb-8 text-center">
           🥋 Student Scores History
         </h1>
