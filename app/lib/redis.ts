@@ -64,18 +64,24 @@ export async function deleteScore(studentName: string, date: string) {
   const existingData = (await redis.get<ScoreEntry[]>(studentName)) || [];
   const newData = existingData.filter((entry) => entry.date !== date);
 
-  // If this was the last entry for this date, remove the date from dates list
+  // First, update the student's scores
+  await redis.set(studentName, newData);
+
+  // Only proceed with date cleanup if we actually deleted something
   if (existingData.length !== newData.length) {
+    // Get all scores in a single operation
+    const allScoresPromises = students.map((student) =>
+      student.name === studentName
+        ? Promise.resolve([]) // Skip the student we just updated
+        : redis.get<ScoreEntry[]>(student.name)
+    );
+
+    const allScores = await Promise.all(allScoresPromises);
+
     // Check if any other student has an entry for this date
-    let dateStillInUse = false;
-    for (const student of students) {
-      if (student.name === studentName) continue;
-      const studentData = await getStudentScores(student.name);
-      if (studentData.some((entry) => entry.date === date)) {
-        dateStillInUse = true;
-        break;
-      }
-    }
+    const dateStillInUse = allScores.some(
+      (scores) => scores && scores.some((entry) => entry.date === date)
+    );
 
     // If no other student has an entry for this date, remove it from dates list
     if (!dateStillInUse) {
@@ -84,6 +90,4 @@ export async function deleteScore(studentName: string, date: string) {
       await redis.set("dates", newDates);
     }
   }
-
-  await redis.set(studentName, newData);
 }
