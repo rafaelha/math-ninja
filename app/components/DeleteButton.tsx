@@ -1,7 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-
 export default function DeleteButton({
   studentName,
   date,
@@ -11,14 +9,12 @@ export default function DeleteButton({
   date: string;
   onDelete: () => Promise<void>;
 }) {
-  const router = useRouter();
-
   const handleDelete = async (e: React.MouseEvent) => {
     e.stopPropagation();
     const formattedDate = new Date(date).toLocaleDateString();
     if (confirm(`Delete score for ${studentName} on ${formattedDate}?`)) {
       await onDelete();
-      router.refresh();
+      window.location.reload();
     }
   };
 
